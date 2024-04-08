@@ -1,9 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
-import { SiChatbot } from "react-icons/si";
-import { RxCross2 } from "react-icons/rx";
-import { IoSendSharp } from "react-icons/io5";
-import { FaUser } from "react-icons/fa";
+import { SiChatbot } from "/node_modules/react-icons/si";
+import { RxCross2 } from "/node_modules/react-icons/rx";
+import { IoSendSharp } from "/node_modules/react-icons/io5";
+import { FaUser } from "/node_modules/react-icons/fa";
 
 export default function Home() {
   const [open, setOpen] = useState(false);
