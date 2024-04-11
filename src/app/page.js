@@ -19,18 +19,43 @@ export default function Home() {
     }
   }, [open]);
 
+  // const sendMessage = () => {
+  //   const payload = { query: message };
+  //   axios
+  //     .post(
+  //       "https://3000-baitech365-chatbot-91jipsrz86g.ws-us110.gitpod.io/api/chat'",
+  //       payload
+  //     )
+  //     .then((res) => setChat(res.data), setMessage(""), setDateTime(new Date()))
+  //     .catch((err) => console.log(err, "Error!"))
+  //     .finally(() => setLoading(false));
+  // };
+
   const sendMessage = () => {
-    const payload = { query: message };
+    const payload = {
+      message: message,
+      chat_history: chat,
+    };
+
     axios
-      .post("https://chatbot.trainright.fit/api/chat", payload)
-      .then((res) => setChat(res.data), setMessage(""), setDateTime(new Date()))
+      .post(
+        "https://3000-baitech365-chatbot-91jipsrz86g.ws-us110.gitpod.io/api/chat'",
+        payload
+      )
+      .then((res) => {
+        setChat([...res.data.response, ...chat]);
+        setMessage("");
+        setDateTime(new Date());
+      })
       .catch((err) => console.log(err, "Error!"))
       .finally(() => setLoading(false));
   };
 
+  console.log(chat);
   const chatContainerRef = useRef(null);
 
   useEffect(() => {
+    w;
     scrollToBottom();
   }, [chat]);
 
@@ -63,7 +88,7 @@ export default function Home() {
             <div>
               <div className="bg-[#006d77] flex justify-start items-center gap-2 w-full p-2 text-white rounded-t-lg">
                 <SiChatbot className="w-12 h-12  p-2" />
-                <p className="text-xl font-bold">BuilderFloor Chat</p>
+                <p className="text-xl font-bold">ChatBot</p>
               </div>
               <div
                 className=" h-[355px] overflow-y-scroll"
