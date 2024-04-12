@@ -12,6 +12,7 @@ export default function Home() {
   const [dateTime, setDateTime] = useState(new Date());
   const [chat, setChat] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [chat_history, setChat_history] = useState([]);
 
   useEffect(() => {
     if (open) {
@@ -34,16 +35,14 @@ export default function Home() {
   const sendMessage = () => {
     const payload = {
       message: message,
-      chat_history: chat,
     };
-
     axios
       .post(
-        "https://3000-baitech365-chatbot-91jipsrz86g.ws-us110.gitpod.io/api/chat'",
+        "https://3000-baitech365-chatbot-gaojdb3fd2v.ws-us110.gitpod.io/api/chat",
         payload
       )
       .then((res) => {
-        setChat([...res.data.response, ...chat]);
+        setChat([...chat, message, res.data.message]);
         setMessage("");
         setDateTime(new Date());
       })
@@ -55,7 +54,6 @@ export default function Home() {
   const chatContainerRef = useRef(null);
 
   useEffect(() => {
-    w;
     scrollToBottom();
   }, [chat]);
 
@@ -98,27 +96,20 @@ export default function Home() {
                 <p className="bg-[#e5f0f1] text-center rounded-sm py-1 px-3 m-2">
                   Hi, ask your queries here!
                 </p>
-                {/* {loading && (
-                  <p className="bg-[#e5f0f1] text-center rounded-sm py-1 px-3 m-2">
-                    Loading...
-                  </p>
-                )} */}
                 {chat?.map((item, index) => (
                   <div
                     className={`flex gap-2 m-2 mb-4 ${
-                      item.role === "assistant"
-                        ? "justify-start"
-                        : "justify-end"
+                      index % 2 !== 0 ? "justify-start" : "justify-end"
                     }`}
                     key={index}
                   >
-                    {item.role === "assistant" && (
+                    {index % 2 !== 0 && (
                       <SiChatbot className="w-5 h-5 text-[#006d77] " />
                     )}
                     <div>
                       <p
                         className={`text-xs mb-1 ${
-                          item.role === "assistant" ? "text-left" : "text-right"
+                          index % 2 !== 0 ? "text-left" : "text-right"
                         }`}
                       >
                         {dateTime.toLocaleDateString()}
@@ -129,10 +120,10 @@ export default function Home() {
                         })}
                       </p>
                       <p className="bg-[#e5f0f1] rounded-sm py-1 px-3 text-wrap max-w-56">
-                        {item.content}
+                        {item}
                       </p>
                     </div>
-                    {item.role === "user" && (
+                    {index % 2 === 0 && (
                       <FaUser className="w-5 h-5 text-[#006d77] " />
                     )}
                   </div>
