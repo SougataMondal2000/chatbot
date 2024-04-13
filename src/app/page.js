@@ -126,7 +126,7 @@ export default function Home() {
               }
               break;
 
-            case "book_room":
+            case "book_room_confirm":
               if (jsonResponse.params.length === 4) {
                 const bookRoomPayload = {
                   message: `{func_Response: "Tell the user Payment link is sent to his whatsapp. Please confirm once payment is done."}
@@ -152,8 +152,11 @@ export default function Home() {
                   })
                   .catch((err) => console.log(err, "Error!"));
               }
+              break;
+
+            case "book_room":
               if (jsonResponse.params.length === 4) {
-                const bookRoomPayload2 = {
+                const bookRoomConfirmPayload = {
                   message: `{func_Response: "Tell the user Payment is completed and room is booked. Is there anything else we can help you with."}
                           Above is the response from the function call. Please respond to the user accordingly.`,
                   chat_history: updatedChat,
@@ -161,12 +164,12 @@ export default function Home() {
                 axios
                   .post(
                     "https://3000-baitech365-chatbot-gaojdb3fd2v.ws-us110.gitpod.io/api/chat",
-                    bookRoomPayload2
+                    bookRoomConfirmPayload
                   )
                   .then((res) => {
                     updatedChat = [
                       ...updatedChat,
-                      { role: "USER", message: bookRoomPayload.message },
+                      { role: "USER", message: bookRoomConfirmPayload.message },
                       { role: "CHATBOT", message: res.data.message },
                     ];
                     setChat(() => updatedChat);
