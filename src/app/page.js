@@ -12,7 +12,7 @@ export default function Home() {
   const [dateTime, setDateTime] = useState(new Date());
   const [chat, setChat] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [chat_history, setChat_history] = useState([]);
+  // const [chat_history, setChat_history] = useState([]);
 
   useEffect(() => {
     if (open) {
@@ -31,20 +31,156 @@ export default function Home() {
   //     .catch((err) => console.log(err, "Error!"))
   //     .finally(() => setLoading(false));
   // };
+  const [chat_history, setChat_history] = useState([]);
+
+  useEffect(() => {
+    const storedChatHistory = localStorage.getItem("chatHistory");
+    if (storedChatHistory) {
+      setChat(JSON.parse(storedChatHistory));
+    }
+  }, []);
+
+  useEffect(() => {
+    setChat_history(chat);
+  }, [chat]);
+
+  const [filterChat, setFilterChat] = useState([]);
+
+  useEffect(() => {
+    let conversation = chat;
+    console.log(conversation);
+    conversation = conversation.filter(
+      (obj) => !(obj.message.includes("func") || obj.message.includes("json"))
+    );
+    setFilterChat(conversation);
+  }, [chat]);
+
+  console.log(filterChat);
+
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      localStorage.removeItem("chatHistory");
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
 
   const sendMessage = () => {
     const payload = {
       message: message,
+      chat_history: chat,
     };
+
     axios
       .post(
         "https://3000-baitech365-chatbot-gaojdb3fd2v.ws-us110.gitpod.io/api/chat",
         payload
       )
       .then((res) => {
-        setChat([...chat, message, res.data.message]);
+        let updatedChat = [
+          ...chat,
+          { role: "USER", message: message },
+          { role: "CHATBOT", message: res.data.message },
+        ];
+
+        setChat(() => updatedChat);
+        localStorage.setItem("chatHistory", JSON.stringify(updatedChat));
         setMessage("");
         setDateTime(new Date());
+
+        if (res.data.message.startsWith("```json")) {
+          const jsonResponse = JSON.parse(
+            res.data.message.slice(7, -3).replace(/\\n/g, "")
+          );
+
+          switch (jsonResponse.func) {
+            case "checkRoomAvailable":
+              if (jsonResponse.params.length === 3) {
+                const checkRoomPayload = {
+                  message: `{func_Response: "Tell the user Room is available and Price for this room is 250 usd. Also Ask the user to confirm if we can make the booking?"}
+                          Above is the response from the function call. Please respond to the user accordingly.`,
+                  chat_history: updatedChat,
+                };
+                axios
+                  .post(
+                    "https://3000-baitech365-chatbot-gaojdb3fd2v.ws-us110.gitpod.io/api/chat",
+                    checkRoomPayload
+                  )
+                  .then((res) => {
+                    updatedChat = [
+                      ...updatedChat,
+                      { role: "USER", message: checkRoomPayload.message },
+                      { role: "CHATBOT", message: res.data.message },
+                    ];
+                    setChat(() => updatedChat);
+                    localStorage.setItem(
+                      "chatHistory",
+                      JSON.stringify(updatedChat)
+                    );
+                  })
+                  .catch((err) => console.log(err, "Error!"));
+              }
+              break;
+
+            case "book_room":
+              if (jsonResponse.params.length === 4) {
+                const bookRoomPayload = {
+                  message: `{func_Response: "Tell the user Payment link is sent to his whatsapp. Please confirm once payment is done. And also Payment is now done successfully"}
+                          Above is the response from the function call. Please respond to the user accordingly.`,
+                  chat_history: updatedChat,
+                };
+                axios
+                  .post(
+                    "https://3000-baitech365-chatbot-gaojdb3fd2v.ws-us110.gitpod.io/api/chat",
+                    bookRoomPayload
+                  )
+                  .then((res) => {
+                    updatedChat = [
+                      ...updatedChat,
+                      { role: "USER", message: bookRoomPayload.message },
+                      { role: "CHATBOT", message: res.data.message },
+                    ];
+                    setChat(() => updatedChat);
+                    localStorage.setItem(
+                      "chatHistory",
+                      JSON.stringify(updatedChat)
+                    );
+                  })
+                  .catch((err) => console.log(err, "Error!"));
+              } else {
+                const missingParamPayload = {
+                  message: "Tell user to provide contact number",
+                  chat_history: updatedChat,
+                };
+                axios
+                  .post(
+                    "https://3000-baitech365-chatbot-gaojdb3fd2v.ws-us110.gitpod.io/api/chat",
+                    missingParamPayload
+                  )
+                  .then((res) => {
+                    updatedChat = [
+                      ...updatedChat,
+                      { role: "USER", message: missingParamPayload.message },
+                      { role: "CHATBOT", message: res.data.message },
+                    ];
+                    setChat(() => updatedChat);
+                    localStorage.setItem(
+                      "chatHistory",
+                      JSON.stringify(updatedChat)
+                    );
+                  })
+                  .catch((err) => console.log(err, "Error!"));
+              }
+              break;
+
+            default:
+              break;
+          }
+        }
       })
       .catch((err) => console.log(err, "Error!"))
       .finally(() => setLoading(false));
@@ -96,20 +232,20 @@ export default function Home() {
                 <p className="bg-[#e5f0f1] text-center rounded-sm py-1 px-3 m-2">
                   Hi, ask your queries here!
                 </p>
-                {chat?.map((item, index) => (
+                {filterChat?.map((item, index) => (
                   <div
                     className={`flex gap-2 m-2 mb-4 ${
-                      index % 2 !== 0 ? "justify-start" : "justify-end"
+                      item.role === "CHATBOT" ? "justify-start" : "justify-end"
                     }`}
                     key={index}
                   >
-                    {index % 2 !== 0 && (
+                    {item.role === "CHATBOT" && (
                       <SiChatbot className="w-5 h-5 text-[#006d77] " />
                     )}
                     <div>
                       <p
                         className={`text-xs mb-1 ${
-                          index % 2 !== 0 ? "text-left" : "text-right"
+                          item.role === "CHATBOT" ? "text-left" : "text-right"
                         }`}
                       >
                         {dateTime.toLocaleDateString()}
@@ -120,10 +256,10 @@ export default function Home() {
                         })}
                       </p>
                       <p className="bg-[#e5f0f1] rounded-sm py-1 px-3 text-wrap max-w-56">
-                        {item}
+                        {item.message}
                       </p>
                     </div>
-                    {index % 2 === 0 && (
+                    {item.role === "USER" && (
                       <FaUser className="w-5 h-5 text-[#006d77] " />
                     )}
                   </div>
