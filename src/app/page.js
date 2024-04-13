@@ -129,7 +129,7 @@ export default function Home() {
             case "book_room":
               if (jsonResponse.params.length === 4) {
                 const bookRoomPayload = {
-                  message: `{func_Response: "Tell the user Payment link is sent to his whatsapp. Please confirm once payment is done. And also Payment is now done successfully"}
+                  message: `{func_Response: "Tell the user Payment link is sent to his whatsapp. Please confirm once payment is done."}
                           Above is the response from the function call. Please respond to the user accordingly.`,
                   chat_history: updatedChat,
                 };
@@ -137,6 +137,31 @@ export default function Home() {
                   .post(
                     "https://3000-baitech365-chatbot-gaojdb3fd2v.ws-us110.gitpod.io/api/chat",
                     bookRoomPayload
+                  )
+                  .then((res) => {
+                    updatedChat = [
+                      ...updatedChat,
+                      { role: "USER", message: bookRoomPayload.message },
+                      { role: "CHATBOT", message: res.data.message },
+                    ];
+                    setChat(() => updatedChat);
+                    localStorage.setItem(
+                      "chatHistory",
+                      JSON.stringify(updatedChat)
+                    );
+                  })
+                  .catch((err) => console.log(err, "Error!"));
+              }
+              if (jsonResponse.params.length === 4) {
+                const bookRoomPayload2 = {
+                  message: `{func_Response: "Tell the user Payment is completed and room is booked. Is there anything else we can help you with."}
+                          Above is the response from the function call. Please respond to the user accordingly.`,
+                  chat_history: updatedChat,
+                };
+                axios
+                  .post(
+                    "https://3000-baitech365-chatbot-gaojdb3fd2v.ws-us110.gitpod.io/api/chat",
+                    bookRoomPayload2
                   )
                   .then((res) => {
                     updatedChat = [
