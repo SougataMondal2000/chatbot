@@ -126,6 +126,32 @@ export default function Home() {
               }
               break;
 
+            case "phoneno_confirm":
+              if (jsonResponse.params.length === 4) {
+                const missingParamPayload = {
+                  message: "Tell user to provide contact number",
+                  chat_history: updatedChat,
+                };
+                axios
+                  .post(
+                    "https://3000-baitech365-chatbot-gaojdb3fd2v.ws-us110.gitpod.io/api/chat",
+                    missingParamPayload
+                  )
+                  .then((res) => {
+                    updatedChat = [
+                      ...updatedChat,
+                      { role: "CHATBOT", message: res.data.message },
+                    ];
+                    setChat(() => updatedChat);
+                    localStorage.setItem(
+                      "chatHistory",
+                      JSON.stringify(updatedChat)
+                    );
+                  })
+                  .catch((err) => console.log(err, "Error!"));
+              }
+              break;
+
             case "book_room_confirm":
               if (jsonResponse.params.length === 4) {
                 const bookRoomPayload = {
@@ -179,32 +205,8 @@ export default function Home() {
                     );
                   })
                   .catch((err) => console.log(err, "Error!"));
-              } else {
-                const missingParamPayload = {
-                  message: "Tell user to provide contact number",
-                  chat_history: updatedChat,
-                };
-                axios
-                  .post(
-                    "https://3000-baitech365-chatbot-gaojdb3fd2v.ws-us110.gitpod.io/api/chat",
-                    missingParamPayload
-                  )
-                  .then((res) => {
-                    updatedChat = [
-                      ...updatedChat,
-                      { role: "USER", message: missingParamPayload.message },
-                      { role: "CHATBOT", message: res.data.message },
-                    ];
-                    setChat(() => updatedChat);
-                    localStorage.setItem(
-                      "chatHistory",
-                      JSON.stringify(updatedChat)
-                    );
-                  })
-                  .catch((err) => console.log(err, "Error!"));
               }
               break;
-
             default:
               break;
           }
