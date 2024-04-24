@@ -11,7 +11,7 @@ export default function Home() {
   const [message, setMessage] = useState("");
   const [dateTime, setDateTime] = useState(new Date());
   const [chat, setChat] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   // const [chat_history, setChat_history] = useState([]);
 
   useEffect(() => {
@@ -116,39 +116,87 @@ export default function Home() {
               }
               break;
 
-            case "phoneno_confirm":
-              if (jsonResponse.params.length === 4) {
-                const missingParamPayload = {
-                  message: "Tell user to provide contact number",
-                  chat_history: updatedChat,
-                };
-                axios
-                  .post(
-                    "https://3000-baitech365-chatbot-gaojdb3fd2v.ws-us110.gitpod.io/api/chat",
-                    missingParamPayload
-                  )
-                  .then((res) => {
-                    updatedChat = [
-                      ...updatedChat,
-                      { role: "CHATBOT", message: res.data.message },
-                    ];
-                    setChat(() => updatedChat);
-                    localStorage.setItem(
-                      "chatHistory",
-                      JSON.stringify(updatedChat)
-                    );
-                  })
-                  .catch((err) => console.log(err, "Error!"));
-              }
-              break;
+            // case "phoneno_confirm":
+            //   if (jsonResponse.params.length === 4) {
+            //     console.log(
+            //       typeof jsonResponse.params[0],
+            //       jsonResponse.params[0].length,
+            //       "de"
+            //     );
+            //     const missingParamPayload = {
+            //       message: "Tell user to provide contact number",
+            //       chat_history: updatedChat,
+            //     };
+            //     axios
+            //       .post(
+            //         "https://3000-baitech365-chatbot-gaojdb3fd2v.ws-us110.gitpod.io/api/chat",
+            //         missingParamPayload
+            //       )
+            //       .then((res) => {
+            //         updatedChat = [
+            //           ...updatedChat,
+            //           { role: "CHATBOT", message: res.data.message },
+            //         ];
+            //         setChat(() => updatedChat);
+            //         localStorage.setItem(
+            //           "chatHistory",
+            //           JSON.stringify(updatedChat)
+            //         );
+            //       })
+            //       .catch((err) => console.log(err, "Error!"));
+            //   }
+            //   break;
+
+            // case "book_room_confirm":
+            //   if (jsonResponse.params.length === 4) {
+            //     console.log(
+            //       typeof jsonResponse.params[0],
+            //       jsonResponse.params[0].length,
+            //       "de"
+            //     );
+            //     const bookRoomPayload = {
+            //       message: `{func_Response: "Tell the user Payment link is sent to his whatsapp. Please confirm once payment is done."}
+            //               Above is the response from the function call. Please respond to the user accordingly.`,
+            //       chat_history: updatedChat,
+            //     };
+            //     axios
+            //       .post(
+            //         "https://3000-baitech365-chatbot-gaojdb3fd2v.ws-us110.gitpod.io/api/chat",
+            //         bookRoomPayload
+            //       )
+            //       .then((res) => {
+            //         updatedChat = [
+            //           ...updatedChat,
+            //           { role: "USER", message: bookRoomPayload.message },
+            //           { role: "CHATBOT", message: res.data.message },
+            //         ];
+            //         setChat(() => updatedChat);
+            //         localStorage.setItem(
+            //           "chatHistory",
+            //           JSON.stringify(updatedChat)
+            //         );
+            //       })
+            //       .catch((err) => console.log(err, "Error!"));
+            //   }
+            //   break;
 
             case "book_room_confirm":
               if (jsonResponse.params.length === 4) {
-                const bookRoomPayload = {
-                  message: `{func_Response: "Tell the user Payment link is sent to his whatsapp. Please confirm once payment is done."}
-                          Above is the response from the function call. Please respond to the user accordingly.`,
-                  chat_history: updatedChat,
-                };
+                let bookRoomPayload;
+
+                if (jsonResponse.params[0].length > 10) {
+                  bookRoomPayload = {
+                    message: "Tell user to provide contact number",
+                    chat_history: updatedChat,
+                  };
+                } else {
+                  bookRoomPayload = {
+                    message: `{func_Response: "Tell the user Payment link is sent to his whatsapp. Please confirm once payment is done."}
+                  Above is the response from the function call. Please respond to the user accordingly.`,
+                    chat_history: updatedChat,
+                  };
+                }
+
                 axios
                   .post(
                     "https://3000-baitech365-chatbot-gaojdb3fd2v.ws-us110.gitpod.io/api/chat",
@@ -277,11 +325,7 @@ export default function Home() {
                         })}
                       </p>
                       <p className="bg-[#e5f0f1] rounded-sm py-1 px-3 text-wrap max-w-56">
-                        {loading ? (
-                          <p>Loading...</p>
-                        ) : (
-                          item.message.replace("Hi , how can i assist you?", "")
-                        )}
+                        {item.message.replace("Hi , how can i assist you?", "")}
                       </p>
                     </div>
                     {item.role === "USER" && (
@@ -289,6 +333,7 @@ export default function Home() {
                     )}
                   </div>
                 ))}
+                {loading && <p>Loading...</p>}
               </div>
             </div>
             <div className="">
