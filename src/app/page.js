@@ -20,17 +20,6 @@ export default function Home() {
     }
   }, [open]);
 
-  // const sendMessage = () => {
-  //   const payload = { query: message };
-  //   axios
-  //     .post(
-  //       "https://3000-baitech365-chatbot-91jipsrz86g.ws-us110.gitpod.io/api/chat'",
-  //       payload
-  //     )
-  //     .then((res) => setChat(res.data), setMessage(""), setDateTime(new Date()))
-  //     .catch((err) => console.log(err, "Error!"))
-  //     .finally(() => setLoading(false));
-  // };
   const [chat_history, setChat_history] = useState([]);
 
   useEffect(() => {
@@ -70,6 +59,7 @@ export default function Home() {
   }, []);
 
   const sendMessage = () => {
+    setLoading(true);
     const payload = {
       message: message,
       chat_history: chat,
@@ -211,6 +201,7 @@ export default function Home() {
               break;
           }
         }
+        setLoading(false);
       })
       .catch((err) => console.log(err, "Error!"))
       .finally(() => setLoading(false));
@@ -221,7 +212,7 @@ export default function Home() {
 
   useEffect(() => {
     scrollToBottom();
-  }, [chat]);
+  }, [filterChat]);
 
   useEffect(() => {
     scrollToBottom();
@@ -286,7 +277,11 @@ export default function Home() {
                         })}
                       </p>
                       <p className="bg-[#e5f0f1] rounded-sm py-1 px-3 text-wrap max-w-56">
-                        {item.message}
+                        {loading ? (
+                          <p>Loading...</p>
+                        ) : (
+                          item.message.replace("Hi , how can i assist you?", "")
+                        )}
                       </p>
                     </div>
                     {item.role === "USER" && (
