@@ -347,9 +347,9 @@ export default function Home() {
               <div className="m-1 flex items-end justify-between">
                 <textarea
                   placeholder="Write your query..."
-                  className="w-[300px] outline-none bg-[#e5f0f1] rounded-md py-1 px-2"
+                  className="w-[300px] outline-none bg-[#e5f0f1] rounded-md py-1 px-2 resize-none"
                   rows={3}
-                  value={message}
+                  value={!loading ? message : ""}
                   onChange={(e) => setMessage(e.target.value)}
                 />
                 {!loading ? (
