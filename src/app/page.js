@@ -7,6 +7,7 @@ import { IoSendSharp } from "/node_modules/react-icons/io5";
 import { FaUser } from "/node_modules/react-icons/fa";
 import { css } from "@emotion/react";
 import { ClipLoader } from "react-spinners";
+import { baseurl } from "./baseurl";
 
 const override = css`
   display: block;
@@ -52,8 +53,6 @@ export default function Home() {
     setFilterChat(conversation);
   }, [chat]);
 
-  console.log(filterChat);
-
   useEffect(() => {
     const handleBeforeUnload = () => {
       localStorage.removeItem("chatHistory");
@@ -73,11 +72,10 @@ export default function Home() {
       chat_history: chat,
     };
 
+    setChat(() => [...chat, { role: "USER", message: message }]);
+    let url = `${baseurl}/api/chat`;
     axios
-      .post(
-        "https://3000-baitech365-chatbot-gaojdb3fd2v.ws-us110.gitpod.io/api/chat",
-        payload
-      )
+      .post(url, payload)
       .then((res) => {
         let updatedChat = [
           ...chat,
@@ -104,14 +102,10 @@ export default function Home() {
                   chat_history: updatedChat,
                 };
                 axios
-                  .post(
-                    "https://3000-baitech365-chatbot-gaojdb3fd2v.ws-us110.gitpod.io/api/chat",
-                    checkRoomPayload
-                  )
+                  .post(url, checkRoomPayload)
                   .then((res) => {
                     updatedChat = [
                       ...updatedChat,
-                      { role: "USER", message: checkRoomPayload.message },
                       { role: "CHATBOT", message: res.data.message },
                     ];
                     setChat(() => updatedChat);
@@ -198,10 +192,7 @@ export default function Home() {
                     chat_history: updatedChat,
                   };
                   axios
-                    .post(
-                      "https://3000-baitech365-chatbot-gaojdb3fd2v.ws-us110.gitpod.io/api/chat",
-                      missingParamPayload
-                    )
+                    .post(url, missingParamPayload)
                     .then((res) => {
                       updatedChat = [
                         ...updatedChat,
@@ -223,14 +214,10 @@ export default function Home() {
                   };
 
                   axios
-                    .post(
-                      "https://3000-baitech365-chatbot-gaojdb3fd2v.ws-us110.gitpod.io/api/chat",
-                      bookRoomPayload
-                    )
+                    .post(url, bookRoomPayload)
                     .then((res) => {
                       updatedChat = [
                         ...updatedChat,
-                        { role: "USER", message: bookRoomPayload.message },
                         { role: "CHATBOT", message: res.data.message },
                       ];
                       setChat(() => updatedChat);
@@ -252,14 +239,10 @@ export default function Home() {
                   chat_history: updatedChat,
                 };
                 axios
-                  .post(
-                    "https://3000-baitech365-chatbot-gaojdb3fd2v.ws-us110.gitpod.io/api/chat",
-                    bookRoomConfirmPayload
-                  )
+                  .post(url, bookRoomConfirmPayload)
                   .then((res) => {
                     updatedChat = [
                       ...updatedChat,
-                      { role: "USER", message: bookRoomConfirmPayload.message },
                       { role: "CHATBOT", message: res.data.message },
                     ];
                     setChat(() => updatedChat);
@@ -281,7 +264,6 @@ export default function Home() {
       .finally(() => setLoading(false));
   };
 
-  console.log(chat);
   const chatContainerRef = useRef(null);
 
   useEffect(() => {
