@@ -65,6 +65,8 @@ export default function Home() {
     };
   }, []);
 
+  console.log(chat, "arijit");
+
   const sendMessage = () => {
     setLoading(true);
     const payload = {
@@ -333,7 +335,7 @@ export default function Home() {
                         })}
                       </p>
                       <p className="bg-[#e5f0f1] rounded-sm py-1 px-3 text-wrap max-w-56">
-                        {item.message.replace("Hi , how can i assist you?", "")}
+                        {item.message}
                       </p>
                     </div>
                     {item.role === "USER" && (
