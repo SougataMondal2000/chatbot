@@ -5,6 +5,14 @@ import { SiChatbot } from "/node_modules/react-icons/si";
 import { RxCross2 } from "/node_modules/react-icons/rx";
 import { IoSendSharp } from "/node_modules/react-icons/io5";
 import { FaUser } from "/node_modules/react-icons/fa";
+import { css } from "@emotion/react";
+import { ClipLoader } from "react-spinners";
+
+const override = css`
+  display: block;
+  margin: 0 auto;
+  border-color: red;
+`;
 
 export default function Home() {
   const [open, setOpen] = useState(false);
@@ -123,28 +131,28 @@ export default function Home() {
             //       jsonResponse.params[0].length,
             //       "de"
             //     );
-            //     const missingParamPayload = {
-            //       message: "Tell user to provide contact number",
-            //       chat_history: updatedChat,
-            //     };
-            //     axios
-            //       .post(
-            //         "https://3000-baitech365-chatbot-gaojdb3fd2v.ws-us110.gitpod.io/api/chat",
-            //         missingParamPayload
-            //       )
-            //       .then((res) => {
-            //         updatedChat = [
-            //           ...updatedChat,
-            //           { role: "CHATBOT", message: res.data.message },
-            //         ];
-            //         setChat(() => updatedChat);
-            //         localStorage.setItem(
-            //           "chatHistory",
-            //           JSON.stringify(updatedChat)
-            //         );
-            //       })
-            //       .catch((err) => console.log(err, "Error!"));
-            //   }
+            //   const missingParamPayload = {
+            //     message: "Tell user to provide contact number",
+            //     chat_history: updatedChat,
+            //   };
+            //   axios
+            //     .post(
+            //       "https://3000-baitech365-chatbot-gaojdb3fd2v.ws-us110.gitpod.io/api/chat",
+            //       missingParamPayload
+            //     )
+            //     .then((res) => {
+            //       updatedChat = [
+            //         ...updatedChat,
+            //         { role: "CHATBOT", message: res.data.message },
+            //       ];
+            //       setChat(() => updatedChat);
+            //       localStorage.setItem(
+            //         "chatHistory",
+            //         JSON.stringify(updatedChat)
+            //       );
+            //     })
+            //     .catch((err) => console.log(err, "Error!"));
+            // }
             //   break;
 
             // case "book_room_confirm":
@@ -185,36 +193,54 @@ export default function Home() {
                 let bookRoomPayload;
 
                 if (jsonResponse.params[0].length > 10) {
-                  bookRoomPayload = {
+                  const missingParamPayload = {
                     message: "Tell user to provide contact number",
                     chat_history: updatedChat,
                   };
-                } else {
+                  axios
+                    .post(
+                      "https://3000-baitech365-chatbot-gaojdb3fd2v.ws-us110.gitpod.io/api/chat",
+                      missingParamPayload
+                    )
+                    .then((res) => {
+                      updatedChat = [
+                        ...updatedChat,
+                        { role: "CHATBOT", message: res.data.message },
+                      ];
+                      setChat(() => updatedChat);
+                      localStorage.setItem(
+                        "chatHistory",
+                        JSON.stringify(updatedChat)
+                      );
+                    })
+                    .catch((err) => console.log(err, "Error!"));
+                }
+                if (jsonResponse.params[0].length <= 10) {
                   bookRoomPayload = {
                     message: `{func_Response: "Tell the user Payment link is sent to his whatsapp. Please confirm once payment is done."}
                   Above is the response from the function call. Please respond to the user accordingly.`,
                     chat_history: updatedChat,
                   };
-                }
 
-                axios
-                  .post(
-                    "https://3000-baitech365-chatbot-gaojdb3fd2v.ws-us110.gitpod.io/api/chat",
-                    bookRoomPayload
-                  )
-                  .then((res) => {
-                    updatedChat = [
-                      ...updatedChat,
-                      { role: "USER", message: bookRoomPayload.message },
-                      { role: "CHATBOT", message: res.data.message },
-                    ];
-                    setChat(() => updatedChat);
-                    localStorage.setItem(
-                      "chatHistory",
-                      JSON.stringify(updatedChat)
-                    );
-                  })
-                  .catch((err) => console.log(err, "Error!"));
+                  axios
+                    .post(
+                      "https://3000-baitech365-chatbot-gaojdb3fd2v.ws-us110.gitpod.io/api/chat",
+                      bookRoomPayload
+                    )
+                    .then((res) => {
+                      updatedChat = [
+                        ...updatedChat,
+                        { role: "USER", message: bookRoomPayload.message },
+                        { role: "CHATBOT", message: res.data.message },
+                      ];
+                      setChat(() => updatedChat);
+                      localStorage.setItem(
+                        "chatHistory",
+                        JSON.stringify(updatedChat)
+                      );
+                    })
+                    .catch((err) => console.log(err, "Error!"));
+                }
               }
               break;
 
@@ -333,7 +359,6 @@ export default function Home() {
                     )}
                   </div>
                 ))}
-                {loading && <p>Loading...</p>}
               </div>
             </div>
             <div className="">
@@ -345,10 +370,19 @@ export default function Home() {
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                 />
-                <IoSendSharp
-                  className="w-6 h-6 text-[#006d77] cursor-pointer"
-                  onClick={sendMessage}
-                />
+                {!loading ? (
+                  <IoSendSharp
+                    className="w-6 h-6 text-[#006d77] cursor-pointer"
+                    onClick={sendMessage}
+                  />
+                ) : (
+                  <ClipLoader
+                    color={"#006d77"}
+                    loading={true}
+                    css={override}
+                    size={35}
+                  />
+                )}
               </div>
             </div>
           </div>
