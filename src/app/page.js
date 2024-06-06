@@ -21,6 +21,7 @@ export default function Home() {
   const [dateTime, setDateTime] = useState(new Date());
   const [chat, setChat] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   // const [chat_history, setChat_history] = useState([]);
 
   useEffect(() => {
@@ -68,7 +69,13 @@ export default function Home() {
   console.log(chat, "arijit");
 
   const sendMessage = () => {
+    if (!message.trim()) {
+      setErrorMessage("Message cannot be empty.");
+      return;
+    }
+
     setLoading(true);
+    setErrorMessage("");
     const payload = {
       message: message,
       chat_history: chat,
@@ -335,7 +342,7 @@ export default function Home() {
                         })}
                       </p>
                       <p className="bg-[#e5f0f1] rounded-sm py-1 px-3 text-wrap max-w-56">
-                        {item.message}
+                        {item.message.replace("how can i assist you?", "")}
                       </p>
                     </div>
                     {item.role === "USER" && (
@@ -343,6 +350,9 @@ export default function Home() {
                     )}
                   </div>
                 ))}
+{errorMessage && (
+                  <p className="text-red-500 text-center">{errorMessage}</p>
+                )}
               </div>
             </div>
             <div className="">
